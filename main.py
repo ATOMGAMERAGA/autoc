@@ -18,7 +18,7 @@ class AutoClickerApp:
         # Variables
         self.is_running = False
         self.click_thread = None
-        self.current_version = "0.2"
+        self.current_version = "0.3"
         self.hotkey = "f8"  # Default hotkey
         
         # Create UI elements
