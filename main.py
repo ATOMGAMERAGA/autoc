@@ -11,15 +11,15 @@ import sys
 class AutoClickerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Auto Clicker")
+        self.root.title("AutoC (Auto Clicker)")
         self.root.geometry("320x350")
         self.root.resizable(False, False)
         
         # Variables
         self.is_running = False
         self.click_thread = None
-        self.current_version = "1.0"
-        self.hotkey = "f6"  # Default hotkey
+        self.current_version = "0.2"
+        self.hotkey = "f8"  # Default hotkey
         
         # Create UI elements
         self.create_widgets()
@@ -176,7 +176,7 @@ class AutoClickerApp:
             self.status_var.set("Güncellemeler kontrol ediliyor...")
             
             # Get the latest version from GitHub
-            version_url = "https://raw.githubusercontent.com/username/auto-clicker/main/VERSION.txt"
+            version_url = "https://raw.githubusercontent.com/ATOMGAMERAGA/autoc/main/VERSION.txt"
             response = requests.get(version_url, timeout=5)
             
             if response.status_code == 200:
