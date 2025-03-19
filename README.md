@@ -19,7 +19,7 @@ Kurmak için relases bölümünden en son versiyonun bütün kodunu yükleyin ve
    `source myenv/bin/activate`
 
 ### Gerekli Modül:
-   `pip install pyautogui keyboard requests`
+   `pip install pyautogui keyboard requests sv-ttk`
 
 
 
