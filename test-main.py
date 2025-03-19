@@ -13,9 +13,8 @@ import webbrowser
 # ---------- Sun Valley Teması İçin sv_ttk ----------
 try:
     import sv_ttk
-    # Varsayılan olarak Sun Valley teması "dark" modda kullanılacak.
     sv_ttk.set_theme("dark")
-    default_theme = "sv_dark"  # Bu isim, tema değiştirme için mapping'de kullanılacak.
+    default_theme = "sv_dark"  # Tema mapping için kullanılacak isim
 except ImportError:
     messagebox.showerror("Tema Hatası", "sv_ttk paketi yüklenmedi!\n(Pip ile 'pip install sv_ttk' komutunu kullanın.)")
     default_theme = "win11_custom"  # Alternatif tema
@@ -75,13 +74,11 @@ def create_azure_dark_theme(style):
 
 def setup_style(root):
     style = ttk.Style(root)
-    # Varsayılan olarak Sun Valley teması kullanılacak.
     try:
         style.theme_use(default_theme)
     except tk.TclError:
         create_win11_theme(style)
         style.theme_use("win11_custom")
-    # Diğer temaların oluşturulması
     create_classic_theme(style)
     create_modern_theme(style)
     create_azure_dark_theme(style)
@@ -95,7 +92,6 @@ class AutoClickerApp:
         self.root.geometry("600x700")
         self.root.resizable(True, True)
 
-        # Stil ayarları
         self.style = setup_style(root)
 
         # Tema seçenekleri (Sun Valley varsayılan)
@@ -108,15 +104,16 @@ class AutoClickerApp:
             "Azure Dark": "azure_dark_custom"
         }
 
-        self.current_version = "0.3"
+        self.current_version = "0.4"
         self.is_running = False
         self.click_thread = None
-        self.hotkey = "f6"  # Varsayılan kısayol
+        self.hotkey = "f6"
         self.fullscreen = False
 
         # Değişkenler
         self.click_type = tk.StringVar(value="left")
         self.interval_value = tk.StringVar(value="100")
+        # Burada interval tipleri arasında "ms", "saniye", "dakika" yanında "cps" da ekleniyor.
         self.interval_type = tk.StringVar(value="ms")
         self.random_interval = tk.BooleanVar(value=False)
         self.min_interval = tk.StringVar(value="80")
@@ -127,7 +124,6 @@ class AutoClickerApp:
         self.custom_x = tk.StringVar(value="0")
         self.custom_y = tk.StringVar(value="0")
 
-        # Global kısayol ekle
         keyboard.add_hotkey(self.hotkey, self.toggle_clicking)
 
         self.create_widgets()
@@ -150,8 +146,9 @@ class AutoClickerApp:
 
         ttk.Label(options_frame, text="Tıklama Aralığı:").grid(row=1, column=0, padx=5, pady=5, sticky="w")
         ttk.Entry(options_frame, textvariable=self.interval_value, width=10).grid(row=1, column=1, padx=5)
+        # Combobox değerlerine "cps" de eklendi.
         interval_types = ttk.Combobox(options_frame, textvariable=self.interval_type, width=10, state="readonly")
-        interval_types['values'] = ("ms", "saniye", "dakika")
+        interval_types['values'] = ("ms", "saniye", "dakika", "cps")
         interval_types.grid(row=1, column=2, padx=5)
         ttk.Checkbutton(options_frame, text="Rastgele Aralık", variable=self.random_interval,
                         command=self.toggle_random_interval).grid(row=2, column=0, padx=5, pady=5)
@@ -281,30 +278,44 @@ class AutoClickerApp:
             messagebox.showerror("Hata", "Geçerli bir tıklama sayısı giriniz.")
             return
 
-        if self.random_interval.get():
-            try:
-                min_val = float(self.min_interval.get())
-                max_val = float(self.max_interval.get())
-                if min_val > max_val:
-                    raise ValueError("Min aralık, max aralıktan büyük olamaz.")
-            except ValueError as ve:
-                messagebox.showerror("Hata", f"Rastgele aralık değeri hatası: {ve}")
-                return
-            get_interval = lambda: random.uniform(min_val, max_val)
-        else:
-            try:
-                interval = float(self.interval_value.get())
-            except ValueError:
-                messagebox.showerror("Hata", "Geçerli bir aralık değeri giriniz.")
-                return
-            get_interval = lambda: interval
-
+        # CPS seçeneği için ayrı hesaplama yapılıyor.
         unit = self.interval_type.get()
-        multiplier = 1
-        if unit == "saniye":
-            multiplier = 1000
-        elif unit == "dakika":
-            multiplier = 60000
+        if unit == "cps":
+            try:
+                cps_value = float(self.interval_value.get())
+                if cps_value <= 0:
+                    raise ValueError("CPS 0 veya negatif olamaz.")
+                # Tıklama aralığı saniye cinsinden = 1 / cps
+                interval_seconds = 1.0 / cps_value
+            except ValueError:
+                messagebox.showerror("Hata", "Geçerli bir CPS değeri giriniz.")
+                return
+            get_interval = lambda: interval_seconds
+            multiplier = 1  # Artık hesaplamaya gerek yok.
+        else:
+            if self.random_interval.get():
+                try:
+                    min_val = float(self.min_interval.get())
+                    max_val = float(self.max_interval.get())
+                    if min_val > max_val:
+                        raise ValueError("Min aralık, max aralıktan büyük olamaz.")
+                except ValueError as ve:
+                    messagebox.showerror("Hata", f"Rastgele aralık değeri hatası: {ve}")
+                    return
+                get_interval = lambda: random.uniform(min_val, max_val)
+            else:
+                try:
+                    interval = float(self.interval_value.get())
+                except ValueError:
+                    messagebox.showerror("Hata", "Geçerli bir aralık değeri giriniz.")
+                    return
+                get_interval = lambda: interval
+
+            multiplier = 1
+            if unit == "saniye":
+                multiplier = 1000
+            elif unit == "dakika":
+                multiplier = 60000
 
         if delay_sec > 0:
             self.status_var.set(f"{delay_sec} saniye sonra başlıyor...")
