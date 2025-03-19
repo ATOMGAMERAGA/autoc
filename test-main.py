@@ -10,17 +10,17 @@ import os
 import sys
 import webbrowser
 
-# ---------- Tema Ayarları ----------
-# Varsayılan olarak pip ile yüklenebilen Sun Valley ttk temasını kullanmak istiyoruz.
+# ---------- Sun Valley Teması İçin sv_ttk ----------
 try:
-    import sun_valley_ttk_theme
-    # Sun Valley temasını global olarak ayarla:
-    sun_valley_ttk_theme.setup_theme()  
-    default_theme = "sun-valley"  # sun_valley_ttk_theme'in tema adı
+    import sv_ttk
+    # Varsayılan olarak Sun Valley teması "dark" modda kullanılacak.
+    sv_ttk.set_theme("dark")
+    default_theme = "sv_dark"  # Bu isim, tema değiştirme için mapping'de kullanılacak.
 except ImportError:
-    # Eğer sun-valley-ttk-theme yüklü değilse, varsayılan olarak Windows 11 benzeri tema oluşturuyoruz.
-    default_theme = "win11_custom"
+    messagebox.showerror("Tema Hatası", "sv_ttk paketi yüklenmedi!\n(Pip ile 'pip install sv_ttk' komutunu kullanın.)")
+    default_theme = "win11_custom"  # Alternatif tema
 
+# ---------- Diğer Tema Ayarları ----------
 def create_win11_theme(style):
     style.theme_create("win11_custom", parent="clam", settings={
         ".": {"configure": {"background": "#f3f3f3", "foreground": "#000000", "font": ("Segoe UI", 10)}},
@@ -75,14 +75,13 @@ def create_azure_dark_theme(style):
 
 def setup_style(root):
     style = ttk.Style(root)
-    # Eğer sun-valley teması default olarak ayarlandıysa onu kullanıyoruz;
-    # aksi halde kendi temalarımızı oluşturup "theme_use" ile ayarlıyoruz.
+    # Varsayılan olarak Sun Valley teması kullanılacak.
     try:
         style.theme_use(default_theme)
     except tk.TclError:
         create_win11_theme(style)
         style.theme_use("win11_custom")
-    # Ayrıca diğer tema seçenekleri için de custom temalarımızı oluşturuyoruz:
+    # Diğer temaların oluşturulması
     create_classic_theme(style)
     create_modern_theme(style)
     create_azure_dark_theme(style)
@@ -99,11 +98,10 @@ class AutoClickerApp:
         # Stil ayarları
         self.style = setup_style(root)
 
-        # Varsayılan tema seçiminde Sun Valley (pip üzerinden yüklenen) varsayıldır.
+        # Tema seçenekleri (Sun Valley varsayılan)
         self.available_themes = ["Sun Valley", "Windows 11", "Klasik", "Modern", "Azure Dark"]
-        # Burada tema isimlerini, style.theme_use() ile geçişte kullanacağımız şekilde eşliyoruz:
         self.theme_mapping = {
-            "Sun Valley": default_theme,  # pip paketinden
+            "Sun Valley": default_theme,
             "Windows 11": "win11_custom",
             "Klasik": "classic_custom",
             "Modern": "modern_custom",
