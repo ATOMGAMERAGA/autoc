@@ -8,6 +8,37 @@ import requests
 import os
 import sys
 import sv_ttk  # Sun Valley temasını uygulamak için
+import subprocess
+import tkinter.simpledialog
+
+# Sadece Linux'ta ve sudo yetkisi yoksa çalıştır
+if sys.platform.startswith("linux") and os.geteuid() != 0:
+    root = tk.Tk()
+    root.withdraw()  # Ana pencereyi gizle
+    password = tkinter.simpledialog.askstring(
+        "Sudo Yetkisi Gerekli",
+        "Bu program sudo yetkileri ile çalıştırılmalıdır.\nLütfen sudo şifresini giriniz:",
+        show="*"
+    )
+    if not password:
+        tkinter.messagebox.showerror("Hata", "Sudo şifresi gerekli.")
+        sys.exit(1)
+
+    # Girilen şifreyi doğrulamak için 'sudo -S echo' komutu kullanılır
+    proc = subprocess.run(
+        ["sudo", "-S", "echo", "Sudo doğrulaması başarılı"],
+        input=password + "\n",
+        capture_output=True,
+        text=True
+    )
+    if proc.returncode != 0:
+        tkinter.messagebox.showerror("Hata", "Geçersiz sudo şifresi.")
+        sys.exit(1)
+
+    # Şifre doğruysa, programı sudo ile yeniden başlatır
+    args = ["sudo", sys.executable] + sys.argv
+    os.execvp("sudo", args)
+
 
 class AutoClickerApp:
     def __init__(self, root):
@@ -25,7 +56,7 @@ class AutoClickerApp:
         # Değişkenler
         self.is_running = False
         self.click_thread = None
-        self.current_version = "0.5"
+        self.current_version = "0.7"
         self.hotkey = "f8"  # Varsayılan kısayol
         
         # Arayüz öğelerini oluştur
