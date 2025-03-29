@@ -1,5 +1,9 @@
 # Auto C (Auto Clicker)
 
+## Basit Kurulum:
+
+Hızlıca kurup dosyalarla uğraşmamak istiyorsanız [buraya tıklayarak](https://github.com/ATOMGAMERAGA/autoc/releases/tag/autocwindowslinux) sizi attığı yerden linux ve windows versiyonlarını inidrebilirsiniz.
+
 ## Linux:
 
 Kurmak için relases bölümünden en son versiyonun bütün kodunu yükleyin ve dosyaya çıkarın zip dosyasını , ardından sağ tıklayıp burda terminal aça tıklayın sonra sanal ortam oluşturun ve ondanda "bash" yazıp sonra aktif edin sonra gerekli modülleri ve gerekli yan moülleri yükleyin ve en son herşey bitince sanal ortamdayken "sudo python main.py" yazın.
